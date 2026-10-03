@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PromptSpan: prompt-aware performance modeling for LLM serving through Adaptive Residual Correction and Meta-Transfer Calibration. Anonymous paper and reproducibility artifact.">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#244be5">
+  <title>PromptSpan · Prompt-Aware Performance Modeling for LLM Serving</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23244be5'/%3E%3Cpath d='M19 47V17h15c16 0 16 23 0 23H26v7zM26 24v9h8c7 0 7-9 0-9z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="wordmark" href="#top" aria-label="PromptSpan home"><span class="brand-mark" aria-hidden="true">P</span>PromptSpan</a>
+      <nav aria-label="Main navigation">
+        <a href="#motivation">Motivation</a>
+        <a href="#method">Method</a>
+        <a href="#results">Results</a>
+        <a href="#resources">Resources</a>
+      </nav>
+      <span class="nav-status"><span aria-hidden="true"></span>Anonymous submission</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="paper-title">
+      <div class="hero-diagram" aria-hidden="true"></div>
+      <div class="hero-content">
+        <div class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>LLM SERVING · PERFORMANCE MODELING</div>
+        <h1 id="paper-title"><span class="hero-name">PromptSpan<span class="title-colon">:</span></span><span class="hero-title">Prompt-Aware Performance Modeling<br class="desktop-break"> for LLM Serving</span></h1>
+        <p class="hero-description">Learning from prompts. Adapting to serving pressure.<br class="desktop-break"> Predicting latency at unseen GPU replica counts.</p>
+        <div class="hero-actions">
+          <a class="button button-secondary" href="https://anonymous.4open.science/r/PromptSpan-42B4" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 5-4 5 4 5m8-10 4 5-4 5M11.5 3l-3 14"/></svg>Anonymous code</a>
+        </div>
+        <p class="hero-note">Anonymous reproducibility materials</p>
+      </div>
+    </section>
+
+    <div class="container">
+      <section class="headline-results" aria-label="Key experimental results">
+        <div class="headline-stat"><span class="stat-number">7.40<span>%</span></span><span class="stat-title">P50–P95 average MAPE</span><span class="stat-detail">Across the evaluated benchmark</span></div>
+        <div class="headline-stat"><span class="stat-number">62.38<span>%</span></span><span class="stat-title">Relative error reduction</span><span class="stat-detail">Vs. the strongest adapted baseline</span></div>
+        <div class="headline-stat"><span class="stat-number">18<span>/18</span></span><span class="stat-title">Evaluated settings</span><span class="stat-detail">Lower error than all four baselines</span></div>
+      </section>
+
+      <section class="abstract-section" aria-labelledby="abstract-title">
+        <div class="section-label"><span class="section-index">AT A GLANCE</span><h2 id="abstract-title">Beyond request rate.</h2></div>
+        <div class="abstract-copy">
+          <p class="lead">Requests arriving at the same rate can still place very different demands on an LLM serving system. PromptSpan brings prompt information into latency prediction—and adapts its contribution as serving pressure changes.</p>
+          <p>The method combines <strong>Adaptive Residual Correction (ARC)</strong> with <strong>Meta-Transfer Calibration (MTC)</strong>. It predicts time-window mean, P50, and P95 latency at GPU replica counts unseen during training, using a correction head trained on single-GPU data.</p>
+          <div class="scope-tags" aria-label="Evaluation scope"><span>3 LLM families</span><span>2 load levels</span><span>3 target replica counts</span><span>3 estimator seeds</span></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="section tinted-section" id="motivation" aria-labelledby="motivation-title">
+      <div class="container">
+        <div class="section-heading"><div><span class="section-index">01 / MOTIVATION</span><h2 id="motivation-title">Why prompts matter.</h2></div><p>Request intensity is only part of the workload story.</p></div>
+        <div class="motivation-grid">
+          <article class="evidence-panel">
+            <div class="panel-number">01</div>
+            <h3>Similar QPS. Different latency.</h3>
+            <p>At similar request rates, prompt-derived groups show different latencies and different residual errors in a QPS-based model. Prompt features provide an additional predictive signal beyond workload intensity.</p>
+            <figure><button class="image-expand" type="button" data-image="assets/prompt-motivation.png" data-title="Prompt information and QPS-based model residuals" aria-label="Enlarge the prompt motivation figure"><img src="assets/prompt-motivation.png" alt="Empirical plots comparing latency and QPS-based prediction residuals across prompt-derived groups." width="1794" height="774" loading="lazy"><span>Enlarge figure</span></button><figcaption>Prompt-related variation remains after accounting for request intensity.</figcaption></figure>
+          </article>
+          <article class="evidence-panel">
+            <div class="panel-number">02</div>
+            <h3>The correction depends on pressure.</h3>
+            <p>Prompt-related residual differences vary with serving pressure. This motivates a pressure-conditioned gain: the same prompt signal should not receive a fixed correction weight in every workload condition.</p>
+            <figure><button class="image-expand" type="button" data-image="assets/pressure-motivation.png" data-title="Prompt-related residuals across serving pressure" aria-label="Enlarge the serving pressure motivation figure"><img src="assets/pressure-motivation.png" alt="Empirical plots showing changes in prompt-group residual differences across serving pressure levels." width="1721" height="748" loading="lazy"><span>Enlarge figure</span></button><figcaption>Serving pressure changes the residual pattern that the correction head must model.</figcaption></figure>
+          </article>
+        </div>
+        <p class="section-footnote">These findings are predictive associations in a controlled-replay benchmark with reconstructed prompts, not an isolated causal effect of prompt semantics.</p>
+      </div>
+    </section>
+
+    <section class="section" id="method" aria-labelledby="method-title">
+      <div class="container">
+        <div class="section-heading"><div><span class="section-index">02 / METHOD</span><h2 id="method-title">Two components. One prediction pathway.</h2></div><p>Prompt-aware correction, trained to transfer across pressure domains.</p></div>
+        <figure class="overview-figure"><button class="image-expand" type="button" data-image="assets/overview.png" data-title="PromptSpan method overview" aria-label="Enlarge the PromptSpan method overview"><img src="assets/overview.png" alt="PromptSpan's three-stage pipeline: Adaptive Residual Correction uses paired prompt-aware and QPS-based predictions; Meta-Transfer Calibration trains the correction head across source pressure domains; corrected request predictions are aggregated into time-window latency estimates." width="3258" height="1338" loading="lazy"><span>Enlarge overview</span></button><figcaption>PromptSpan trains on one GPU replica and predicts at two, three, and four replicas of the same GPU type.</figcaption></figure>
+        <div class="method-grid">
+          <article class="method-card arc-card"><div class="component-label"><span>ARC</span><span>Adaptive Residual Correction</span></div><h3>Use prompts where they help.</h3><p>ARC calibrates a prompt-aware request predictor using workload context and the contrast between matched prompt-aware and QPS-based predictions. A learned gain conditions the contrast correction on per-replica QPS and input-token rate.</p><div class="formula" aria-label="Correction delta equals context calibration C of u plus pressure-conditioned gain g of rho times the prediction contrast P minus N"><span>Δ = C(u) + g(ρ)(P − N)</span><small>context calibration + adaptive contrast correction</small></div></article>
+          <article class="method-card mtc-card"><div class="component-label"><span>MTC</span><span>Meta-Transfer Calibration</span></div><h3>Learn to handle unseen replica counts.</h3><p>MTC trains only the compact correction head across pressure domains constructed from single-GPU training data. Support/query updates across pressure levels encourage transfer without multi-GPU training labels or target adaptation.</p><div class="training-path"><span>Single-GPU data</span><span class="path-divider" aria-hidden="true"></span><span>Pressure-domain training</span><span class="path-divider" aria-hidden="true"></span><span>Unseen replica counts</span></div></article>
+        </div>
+        <div class="prediction-note"><span class="note-label">PREDICTION TARGET</span><p>Corrected request-level predictions are aggregated into non-overlapping five-second windows to estimate <strong>mean, P50, and P95 latency</strong>.</p></div>
+      </div>
+    </section>
+
+    <section class="section results-section" id="results" aria-labelledby="results-title">
+      <div class="container">
+        <div class="section-heading"><div><span class="section-index">03 / RESULTS</span><h2 id="results-title">Lower prediction error across settings.</h2></div><p>Qwen3, DeepSeek, and Ministral.<br>Standard and elevated load. Unseen replica counts.</p></div>
+        <div class="comparison-layout">
+          <div class="comparison-copy"><span class="small-label">RQ1 / BASELINE COMPARISON</span><h3>7.40% average MAPE.</h3><p>PromptSpan reduces P50–P95 average MAPE by <strong>62.38%</strong> relative to LLM-Pilot, the strongest task-adapted baseline. It has lower error than all four baselines in every one of the 18 evaluated model–load–replica combinations.</p><p class="muted">The comparison uses task-adapted local surrogates under a shared evaluation protocol, rather than direct runs of each original serving system.</p></div>
+          <figure class="comparison-chart" aria-labelledby="comparison-chart-title"><figcaption id="comparison-chart-title">Overall P50–P95 average MAPE <span>Lower is better · %</span></figcaption><div class="chart-row featured"><span class="chart-label">PromptSpan</span><div class="bar-track"><div class="bar" style="--bar-width:28.28%"></div></div><strong>7.40</strong></div><div class="chart-row"><span class="chart-label">LLM-Pilot</span><div class="bar-track"><div class="bar" style="--bar-width:75.16%"></div></div><span class="chart-value">19.67</span></div><div class="chart-row"><span class="chart-label">Efficient Scaling</span><div class="bar-track"><div class="bar" style="--bar-width:83.42%"></div></div><span class="chart-value">21.83</span></div><div class="chart-row"><span class="chart-label">Vidur</span><div class="bar-track"><div class="bar" style="--bar-width:96.06%"></div></div><span class="chart-value">25.14</span></div><div class="chart-row"><span class="chart-label">Sarathi-Serve</span><div class="bar-track"><div class="bar" style="--bar-width:100%"></div></div><span class="chart-value">26.17</span></div></figure>
+        </div>
+
+        <div class="results-table-panel">
+          <div class="table-heading"><div><span class="small-label">EXPLORE THE MAIN-METHOD RESULTS</span><h3>PromptSpan, setting by setting.</h3></div><a class="text-link" href="assets/promptspan-results.csv" download>Download results CSV</a></div>
+          <div class="table-controls"><div class="load-control"><span id="load-label">Workload load</span><div class="segmented" role="group" aria-labelledby="load-label"><button type="button" data-load="1x" aria-pressed="true">1×</button><button type="button" data-load="1.5x" aria-pressed="false">1.5×</button></div></div><label class="model-control" for="model-filter">LLM family<select id="model-filter"><option value="all">All three families</option><option value="qwen3">Qwen3</option><option value="deepseek">DeepSeek</option><option value="ministral">Ministral</option></select></label><p id="result-count" class="result-count" role="status" aria-live="polite"></p></div>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable PromptSpan result table"><table><caption class="sr-only">Mean, P50, P95, and P50–P95 average mean absolute percentage error, in percent. Averaged over three estimator seeds.</caption><thead><tr><th scope="col">LLM family</th><th scope="col">GPU replicas</th><th scope="col">Mean MAPE</th><th scope="col">P50 MAPE</th><th scope="col">P95 MAPE</th><th scope="col">P50–P95 avg.</th></tr></thead><tbody id="results-body"></tbody></table></div>
+          <p class="table-note">All values are MAPE (%); lower is better. Three estimator seeds. Training/validation use one replica; testing uses later time windows at 2, 3, and 4 replicas. The 7.40% headline is the pooled-window aggregate, not a simple average of displayed cells.</p>
+          <noscript><p>The interactive table requires JavaScript. The complete values remain available in the <a href="assets/promptspan-results.csv">results CSV</a> and paper.</p></noscript>
+        </div>
+
+        <div class="ablation-strip"><div><span class="small-label">RQ2 / COMPONENT ABLATION</span><h3>What contributes to the result?</h3><p>Matched ablations support the contributions of prompt information and meta-transfer training. Context calibration and contrast correction further refine the prompt-aware predictor.</p></div><dl class="ablation-values"><div class="full-method"><dt>PromptSpan</dt><dd>7.399<span>%</span></dd></div><div><dt>w/o ARC</dt><dd>7.587<span>%</span></dd></div><div><dt>w/o MTC</dt><dd>7.588<span>%</span></dd></div><div><dt>w/o prompt</dt><dd>9.600<span>%</span></dd></div></dl></div>
+        <p class="section-footnote">The evaluation uses controlled replays with reconstructed prompts and a single GPU type. These results characterize latency prediction; they do not directly measure SLO improvements or GPU savings.</p>
+      </div>
+    </section>
+
+    <section class="section resources-section" id="resources" aria-labelledby="resources-title">
+      <div class="container">
+        <div class="section-heading"><div><span class="section-index">04 / RESOURCES</span><h2 id="resources-title">Reproduce the results.</h2></div><p>Materials for anonymous review.</p></div>
+        <div class="resource-grid"><article class="resource-card code-card"><span class="resource-type">CODE + PROCESSED DATA</span><h3>The anonymous artifact</h3><p>Reproduce the PromptSpan main-method results across LLM families, load levels, replica counts, and latency metrics.</p><a class="button button-primary" href="https://anonymous.4open.science/r/PromptSpan-42B4" target="_blank" rel="noopener noreferrer">Open anonymous repository</a></article></div>
+        <div class="repro-details"><div><h3>What the artifact covers</h3><p>The package includes the clean main-method implementation, processed features, the evaluation entry point, and verified result files. It reproduces the <strong>PromptSpan rows</strong>; baseline and ablation implementations are not included.</p></div><div><h3>A reproducible prediction pipeline</h3><p>Run training and evaluation on CPU using cached prompt embeddings and features. This reproduces the modeling experiment without rerunning the original GPU serving measurements or accessing raw prompt text.</p></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-content"><a class="wordmark" href="#top"><span class="brand-mark" aria-hidden="true">P</span>PromptSpan</a><p>Anonymous research materials · No analytics or external font services</p><a href="#top">Back to top</a></div></footer>
+
+  <dialog id="figure-dialog" aria-labelledby="dialog-title"><div class="dialog-heading"><h2 id="dialog-title">Paper figure</h2><button type="button" class="dialog-close" aria-label="Close figure">Close <span aria-hidden="true">×</span></button></div><div class="dialog-image-wrap"><img id="dialog-image" src="assets/overview.png" alt=""></div><p class="dialog-note">Scroll horizontally on smaller screens to inspect the full figure.</p></dialog>
+</body>
+</html>
